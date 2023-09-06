@@ -1,17 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Link, json } from "react-router-dom";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import "../css/signup.css";
 import show from "../assets/show.png";
 import hide from "../assets/hide.png";
-import WebFont from "webfontloader";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import 'bootstrap/dist/css/bootstrap.css';
 
-WebFont.load({
-  google: {
-    families: ["Play&display=swap"],
-  },
-});
 
-function SignUp() {
+function Register() {
   const [data, setData] = useState({
     name: "",
     email: "",
@@ -20,106 +17,101 @@ function SignUp() {
     password: "",
     confirmPassword: "",
   });
-  const [errors, setErrors] = useState({
-    errors: {},
-    isError: false,
-  });
-  const [showPassword, setShowPassword] = useState("password");
 
-  const togglePassword = (e) => {
+  const handleChange = (e) => {
+    setData({ ...data, [e.target.name]: e.target.value });
+  };
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePassword = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setShowPassword((type) => (type === "password" ? "text" : "password"));
-  };
-  const submitForm = (e) => {
-    e.preventDefault();
-    console.log(data);
-  };
 
-  const handleSubmit = (e) => {};
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleSubmit(e);
-    }
+    fetch("http://localhost:3001/user/signup", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((responseData) => {
+        if (responseData.status === "Success") {
+          toast.success("Registered successfully");
+        } else if (responseData.status === "Fail") {
+          toast.error(responseData.message);
+        }
+      })
+      .catch((err) => {
+        toast.error("Error occurred while registering", err);
+      });
   };
-  function handleChange(e, property) {
-    setData({ ...data, [property]: e.target.value });
-  }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <form className="signUpBox" onSubmit={submitForm}>
+    <div className="signUpContainer">
+      <ToastContainer />
+      <form className="signUpBox" onSubmit={handleSubmit}>
         <h1>Sign Up</h1>
         <div>
-          <label className="label" htmlFor="name">
-            Full Name
-          </label>
+          <label htmlFor="name">Full Name</label>
           <input
             type="text"
             className="fullName"
             id="name"
-            onChange={(e) => handleChange(e, "name")}
+            name="name"
             value={data.name}
+            onChange={handleChange}
           />
         </div>
         <div>
-          <label className="label" htmlFor="email">
-            Email
-          </label>
+          <label htmlFor="email">Email</label>
           <input
             type="email"
             className="fullName"
             id="email"
-            onChange={(e) => handleChange(e, "email")}
+            name="email"
             value={data.email}
+            onChange={handleChange}
           />
         </div>
         <div>
-          <label className="label" htmlFor="number">
-            Contact No.
-          </label>
+          <label htmlFor="number">Contact No.</label>
           <input
             type="number"
-            style={{ MozAppearance: "textfield" }}
             className="fullName"
             id="number"
-            onChange={(e) => handleChange(e, "number")}
+            name="number"
             value={data.number}
+            onChange={handleChange}
           />
         </div>
         <div>
-          <label className="label" htmlFor="DOB">
-            Date of Birth
-          </label>
+          <label htmlFor="DOB">Date of Birth</label>
           <input
             type="date"
             className="fullName"
             id="DOB"
-            onChange={(e) => handleChange(e, "DOB")}
+            name="DOB"
             value={data.DOB}
+            onChange={handleChange}
           />
         </div>
         <div>
-          <label className="label" htmlFor="password">
-            Password
-          </label>
+          <label htmlFor="password">Password</label>
           <input
-            type={showPassword}
+            type={showPassword ? "text" : "password"}
             className="fullName"
             id="password"
-            onChange={(e) => handleChange(e, "password")}
+            name="password"
             value={data.password}
+            onChange={handleChange}
           />
-
           <img
-            src={showPassword === "password" ? hide : show}
+            src={showPassword ? hide : show}
             alt="show"
             height={20}
             width={20}
@@ -133,19 +125,17 @@ function SignUp() {
           />
         </div>
         <div>
-          <label className="label" htmlFor="confirmPassword">
-            Confirm Password
-          </label>
+          <label htmlFor="confirmPassword">Confirm Password</label>
           <input
-            type={showPassword}
+            type={showPassword ? "text" : "password"}
             className="fullName"
             id="confirmPassword"
-            onChange={(e) => handleChange(e, "confirmPassword")}
+            name="confirmPassword"
             value={data.confirmPassword}
+            onChange={handleChange}
           />
-
           <img
-            src={showPassword === "password" ? hide : show}
+            src={showPassword ? hide : show}
             alt="show"
             height={20}
             width={20}
@@ -159,23 +149,14 @@ function SignUp() {
           />
         </div>
         <div>
-          <button
-            className="btn"
-            style={{ width: "452px", marginTop: "10px", marginBottom: "10px" }}
-            onKeyDown={handleKeyDown}
-            onSubmit={handleSubmit}
-          >
+          <button className="btn" style={{ width: "452px" }} type="submit">
             Sign Up
           </button>
         </div>
-        <div
-          style={{
-            fontFamily: "play,sans-serif",
-          }}
-        >
+        <div>
           <p>
             Already a member? Try{" "}
-            <Link to="/login" style={{ textDecoration: "none", margin: "5px" }}>
+            <Link to="/login" style={{ textDecoration: "none" }}>
               Login
             </Link>
           </p>
@@ -185,4 +166,4 @@ function SignUp() {
   );
 }
 
-export default SignUp;
+export default Register;

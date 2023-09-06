@@ -1,7 +1,10 @@
-import React from "react";
-import shishiro from "../assets/shishiroaka.jpg";
+import React, { useEffect } from "react";
+import shishiroimg from "../assets/shishiroaka.jpg";
+import defaultimg from "../assets/defaultUser.jpeg"
 import "../css/profile.css";
 import WebFont from "webfontloader";
+import axios from "axios";
+import { useState } from "react";
 
 WebFont.load({
   google: {
@@ -10,6 +13,28 @@ WebFont.load({
 });
 
 function Profile() {
+  const [profileData, setProfileData] = useState('')
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const id = sessionStorage.getItem("id");
+        const token = sessionStorage.getItem("accessToken")
+        const response = await axios.get(`http://localhost:3001/user/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setProfileData(response.data.message);
+      } catch (err) {
+        console.log("Error while fetching data:", err);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
+
   return (
     <div className="profileContainer">
       <div
@@ -36,7 +61,7 @@ function Profile() {
             padding: "10px 15px",
           }}
         >
-          <img src={shishiro} alt="shishiro" className="profileImage" />
+          <img src={profileData.name === "shishiro" || "SHISHIRO" || "Shishiro" ? shishiroimg : defaultimg} alt="shishiro" className="profileImage" />
         </div>
         <div
           style={{
@@ -46,7 +71,7 @@ function Profile() {
             zIndex: "999",
           }}
         >
-          <h1>Welcome,Shishiro</h1>
+          <h1>Welcome,{profileData.name}</h1>
           <ul
             style={{
               listStyle: "none",
@@ -68,7 +93,7 @@ function Profile() {
                     marginLeft: "5px",
                   }}
                 >
-                  Shishiro
+                  {profileData.name}
                 </span>
               </div>
             </li>
@@ -84,7 +109,7 @@ function Profile() {
                     marginLeft: "5px",
                   }}
                 >
-                  LCS2022014@iiitl.ac.in
+                  {profileData.email}
                 </span>
               </div>
             </li>
@@ -100,7 +125,7 @@ function Profile() {
                     marginLeft: "5px",
                   }}
                 >
-                  +91 81212 78087
+                  +91 {profileData.number}
                 </span>
               </div>
             </li>
@@ -111,13 +136,10 @@ function Profile() {
                 }}
               >
                 DOB:
-                <span
-                  style={{
-                    marginLeft: "5px",
-                  }}
-                >
-                  26-April-2005
+                <span style={{ marginLeft: "5px" }}>
+                  {new Date(profileData.DOB).toLocaleDateString()}
                 </span>
+
               </div>
             </li>
           </ul>

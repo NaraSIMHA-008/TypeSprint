@@ -7,35 +7,42 @@ import Login from "./pages/login";
 import AboutUs from "./pages/AboutUs";
 import Footer from "./Components/Footer";
 import Play from "./pages/play";
-import Stats from "./pages/stats";
-import SignUp from "./pages/signup";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Navbar1 from "./Components/navBar1";
-// import Preview from "./pages/preview";
 import Profile from "./pages/profile";
 import HomeBar from "./Components/home1";
+import Register from "./pages/signup";
 
 export default function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
+
   useEffect(() => {
     document.title = "TypeSprint";
-  });
+    const accessToken = sessionStorage.getItem("accessToken");
+    setLoggedIn(accessToken !== null);
+  }, []);
+
   return (
     <div className="App">
       <>
-        {/* <Navbar /> */}
-        <Navbar1 />
+        {loggedIn ? <Navbar /> : <Navbar1 />}
         <Routes>
+          {loggedIn ? (
+            <>
+              <Route path="/home" element={<Home />} />
+              <Route path="/play" element={<Play />} />
+              <Route path="/Team" element={<OurTeam />} />
+              <Route path="/profile" element={<Profile />} />
+            </>
+          ) : (
+            <>
+              <Route path="/" element={<HomeBar />} />
+            </>
+          )}
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/" element={<Home />} />
-          {/* <Route path="/preview" element={<Preview />} /> */}
-          <Route path="/play" element={<Play />} />
-          <Route path="/Team" element={<OurTeam />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/signup" element={<Register />} />
           <Route path="/Contact" element={<ContactUs />} />
           <Route path="/about" element={<AboutUs />} />
-          <Route path="/stats" element={<Stats />} />
-          <Route path="/home" element={<HomeBar />} />
         </Routes>
         <Footer />
       </>

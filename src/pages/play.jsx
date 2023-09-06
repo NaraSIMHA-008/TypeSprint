@@ -3,6 +3,7 @@ import paragraphs from "./paragraph";
 import { useEffect } from "react";
 import "../css/play.css";
 import WebFont from "webfontloader";
+import axios from "axios";
 
 WebFont.load({
   google: {
@@ -26,10 +27,38 @@ export default function Play() {
 
   let timeLeft = timer;
 
+  const [statData, setStatData] = useState(
+    {
+      WPM: 0,
+      accuracy: 0,
+      mistakes: 0
+    }
+  )
+
+
+
   useEffect(() => {
     inputRef.current.disabled = true;
     generateParagraph();
+
+    const sendStatData = async () => {
+      const id = sessionStorage.getItem('id');
+      try {
+        const res = await axios.post(`http://localhost:3001/${id}/stat`, statData);
+        if (!res) {
+          console.log("something error")
+        } else {
+          console.log("Success")
+        }
+
+      } catch (err) {
+        // Handle error if needed
+      }
+    };
+
+    sendStatData();
   }, []);
+
 
   function handleTimer() {
     if (!isTimerRunning) {
@@ -103,6 +132,11 @@ export default function Play() {
   };
 
   function handleClick() {
+    setStatData({
+      WPM: WPM,
+      accuracy: accuracy,
+      mistakes: mistakes,
+    });
     inputRef.current.disabled = false;
     inputRef.current.focus();
     generateParagraph();
@@ -113,6 +147,7 @@ export default function Play() {
     setAccuracy(0);
     setWPM(0);
     setCharIndex(0);
+
   }
 
   return (

@@ -1,0 +1,25 @@
+# # POST http://localhost:5000/api/login
+# # Content-Type: application/application/json
+
+# # {
+# #     "email":"test@gmail.com",
+# #     "password":"test1234"
+# # }
+
+# POST http://localhost:3001/user/signup
+# Content-Type: application/json
+
+# {
+#     "name": "test",
+#     "email": "test1@gmail.com",
+#     "password": "test1234",
+#     "number": "0987654321",
+#     "DOB": "2004-02-28"
+# }
+POST http://localhost:3001/user/login/
+Content-Type: application/json
+
+{
+"email":"test1@gmail.com",
+"password":"test1234"
+}

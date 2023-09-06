@@ -1,10 +1,13 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../css/login.css";
 import { useState } from "react";
 import show from "../assets/show.png";
 import hide from "../assets/hide.png";
 import WebFont from "webfontloader";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 WebFont.load({
   google: {
@@ -13,51 +16,45 @@ WebFont.load({
 });
 
 export default function Login() {
-  const [data, setData] = useState({
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [errors, setErrors] = useState({})
 
-  const [showPassword, setShowPassword] = useState("password");
-  const validateForm = () => {
-    const errors = {};
-    if (!data.email) {
-      errors.email = "Email is required";
-      console.log("Email is required");
-    }
-    if (!data.password) {
-      errors.password = "Password is required"
-      console.log("Password is required");
+  const [showPassword, setShowPassword] = useState(false);
 
-    }
-    setErrors(errors);
-    return Object.keys(errors).length === 0;
+  const togglePassword = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
-  const togglePassword = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setShowPassword((type) => (type === "password" ? "text" : "password"));
-  };
-
-  const handleSubmit = (e) => { };
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleSubmit(e);
-    }
-  };
-  const submitForm = (e) => {
-    e.preventDefault();
-    console.log(data);
-    if (validateForm()) {
-      console.log("Form is being submitted")
-    }
+    axios
+      .post(`http://localhost:3001/user/login`, formData)
+      .then((res) => {
+        if (res.data.status === "Success") {
+          toast.success("Login successful");
+          const accessToken = res.data.token;
+          const id = res.data.user.id; // Assuming the server sends the id in the response
+          sessionStorage.setItem("accessToken", accessToken);
+          sessionStorage.setItem("id", id);
+          navigate("/");
+        } else {
+          toast.error(res.data.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Error while logging in");
+      });
   };
 
   return (
     <div className="container1">
-      <form className="formBox" onSubmit={submitForm}>
+      <ToastContainer />
+      <form className="formBox" onSubmit={handleSubmit}>
         <h1>Login</h1>
         <div>
           <div className="mailBox">
@@ -65,15 +62,16 @@ export default function Login() {
               Email
             </label>
             <input
-              required=""
+              required
               type="email"
-              name="text"
+              name="email"
               className="email"
               id="email"
-              value={data.email}
-              onChange={(e) => setData({ ...data, email: e.target.value })}
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
             />
-            {errors.email && <span className="error">{errors.email}</span>}
           </div>
 
           <div className="mailBox">
@@ -81,17 +79,18 @@ export default function Login() {
               Password
             </label>
             <input
-              required=""
-              type={showPassword}
-              name="text"
+              required
+              type={showPassword ? "text" : "password"}
+              name="password"
               className="email"
               id="password"
-              value={data.password}
-              onChange={(e) => setData({ ...data, password: e.target.value })}
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
             />
-            {errors.password && <span className="error">{errors.password}</span>}
             <img
-              src={showPassword === "password" ? hide : show}
+              src={showPassword ? hide : show}
               alt="show"
               height={20}
               width={20}
@@ -102,23 +101,13 @@ export default function Login() {
                 cursor: "pointer",
               }}
               onClick={togglePassword}
-              onSubmit={handleSubmit}
-              onKeyDown={handleKeyDown}
             />
           </div>
           <hr className="line" />
-          <button className="btnBox"> Login</button>
-          <div
-            className="forgotBox"
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              fontSize: "1em",
-              gap: "75px",
-              margin: "10px",
-              fontFamily: "Play, sans-serif",
-            }}
-          >
+          <button className="btnBox" type="submit">
+            Login
+          </button>
+          <div className="forgotBox">
             <p>
               New to TypeSprint? Try <Link to="/signup">Sign Up</Link>
             </p>

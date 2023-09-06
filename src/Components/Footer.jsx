@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 export default function Footer() {
   return (
     <footer>
-      <div className="Container">
+      <div className="footerContainer">
         <h4>TypeSprint</h4>
         <div className="inbox" style={{ height: "100px" }}>
           <p>Stay updated. Subscribe for typing tips, offers, and updates.</p>
